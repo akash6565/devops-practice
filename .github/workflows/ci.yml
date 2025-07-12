@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,6 +16,14 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install requests pytest
-      - name: Run tests
-        run: pytest --maxfail=1 --disable-warnings -q
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      - name: Run tests with coverage
+        run: |
+          pytest --maxfail=1 --disable-warnings --cov=src --cov-report=xml
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
